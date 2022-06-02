@@ -1,0 +1,7 @@
+# Хост и порт приложения
+ServiceHost = "0.0.0.0"
+ServicePort = 80
+
+[FVConfig]
+FVSiteAddress = "fv.bmstu.net"
+FVProtocol =  "https"
