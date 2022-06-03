@@ -1,5 +1,7 @@
 package main
 
+import "github.com/SevereCloud/vksdk/v2/api"
+
 type S int
 
 const (
@@ -10,12 +12,23 @@ const (
 	SelectGroup
 )
 
-///////////////////////////////////////////////////////////
+type ChatContext interface {
+	Chat() *api.VK
+	Get(string) interface{}
+	Set(string, interface{})
+}
+
 type State interface {
-	start()
-	handler()
-	clickUndo()
-	changeSchedule()
+	Process(ChatContext) State
+}
+
+type StartState struct {
+}
+
+func (s *StartState) Process(ctx ChatContext) State {
+	//send buttons layout (all branches)
+
+	return
 }
 
 var Chains = map[S][]S{
@@ -25,125 +38,3 @@ var Chains = map[S][]S{
 type MainClass struct {
 	chains []S
 }
-
-//////////////////////////////////////////////////////////
-type StartState struct {
-	schedule Schedule
-}
-
-func (state StartState) start() {
-}
-func (state StartState) clickUndo() {
-
-}
-
-func (state StartState) handler() {
-
-}
-
-func (state StartState) changeSchedule() {
-
-}
-
-//////////////////////////////////////////////////////////
-type BranchState struct {
-	schedule Schedule
-}
-
-func (state BranchState) start() {
-
-}
-
-func (state BranchState) clickUndo() {
-
-}
-
-func (state BranchState) changeSchedule() {
-
-}
-
-//////////////////////////////////////////////////////////
-type GroupState struct {
-	schedule Schedule
-}
-
-func (state GroupState) start() {
-
-}
-
-func (state GroupState) clickUndo() {
-
-}
-
-func (state GroupState) changeSchedule() {
-
-}
-
-//////////////////////////////////////////////////////////
-type FacultyState struct {
-	schedule Schedule
-}
-
-func (state FacultyState) start() {
-
-}
-
-func (state FacultyState) clickUndo() {
-
-}
-
-func (state FacultyState) changeSchedule() {
-
-}
-
-///////////////////////////////////////////////////////////
-type Schedule struct {
-	state State
-}
-
-func (schedule *Schedule) changeState(state State) {
-}
-
-type DayState struct {
-	schedule Schedule
-}
-
-func (day DayState) start() {
-
-}
-func (day DayState) clickUndo() {
-
-}
-func (day DayState) changeSchedule() {
-
-}
-
-type WeekState struct {
-	schedule Schedule
-}
-
-func (week WeekState) start() {
-
-}
-func (week WeekState) clickUndo() {
-
-}
-func (week WeekState) changeSchedule() {
-
-}
-
-type DepartmentState struct {
-	schedule Schedule
-}
-
-func (department DepartmentState) start() {
-
-}
-func (department DepartmentState) clickUndo() {
-
-}
-func (department DepartmentState) changeSchedule() {
-
-}
-
-///////////////////////////////////////////////////////////

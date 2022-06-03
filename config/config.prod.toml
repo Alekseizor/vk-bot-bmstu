@@ -1,0 +1,7 @@
+# НАСТРОЙКИ РЕДИСКИ
+[Redis]
+# Таймауты в миллисекундах
+DialTimeout = 100
+ReadTimeout = 100
+RedisHost="0.0.0.0"
+RedisPort=6379
