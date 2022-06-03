@@ -1,3 +1,9 @@
+# НАСТРОЙКИ API Битопа
+[BITOP]
+SiteAdress = "api.bistg.bmstu.ru"
+Protocol = "https"
+Path = "/search/unit"
+
 # НАСТРОЙКИ РЕДИСКИ
 [Redis]
 # Таймауты в миллисекундах

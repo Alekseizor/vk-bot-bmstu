@@ -2,17 +2,16 @@ package app
 
 import (
 	"context"
-	"main/internal/app/ds"
-	"strings"
-
 	"github.com/SevereCloud/vksdk/v2/api"
 	"github.com/SevereCloud/vksdk/v2/api/params"
 	"github.com/SevereCloud/vksdk/v2/events"
 	"github.com/SevereCloud/vksdk/v2/longpoll-bot"
 	log "github.com/sirupsen/logrus"
-
 	"main/internal/app/config"
+	"main/internal/app/ds"
 	"main/internal/app/redis"
+	"main/internal/pkg/clients/bitop"
+	"strings"
 )
 
 type App struct {
@@ -21,12 +20,13 @@ type App struct {
 	vk  *api.VK
 	lp  *longpoll.LongPoll
 
-	redisClient *redis.Client
+	bitopClient *bitop.Client
+	redisClient *redis.RedClient
 }
 
 func New(ctx context.Context) (*App, error) {
 	cfg := config.FromContext(ctx)
-	vk := api.NewVK(cfg.Token)
+	vk := api.NewVK(cfg.VKToken)
 
 	c, err := redis.New(ctx)
 	if err != nil {
