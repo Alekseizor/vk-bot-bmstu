@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"main/internal/app/config"
+	"main/internal/app/ds"
 	"strings"
 
 	"github.com/SevereCloud/vksdk/v2/api"
@@ -10,6 +10,9 @@ import (
 	"github.com/SevereCloud/vksdk/v2/events"
 	"github.com/SevereCloud/vksdk/v2/longpoll-bot"
 	log "github.com/sirupsen/logrus"
+
+	"main/internal/app/config"
+	"main/internal/app/redis"
 )
 
 type App struct {

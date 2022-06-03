@@ -1,4 +1,3 @@
-
 version: "3.8"
 services:
   redis:
@@ -12,6 +11,4 @@ services:
 
 volumes:
   cache:
-    driver: local
-  postgresdb-data:
     driver: local

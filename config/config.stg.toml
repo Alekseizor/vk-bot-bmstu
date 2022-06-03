@@ -3,5 +3,5 @@
 # Таймауты в миллисекундах
 DialTimeout = 100
 ReadTimeout = 100
-RedisHost="0.0.0.0"
-RedisPort=6379
+Host="0.0.0.0"
+Port=6379
