@@ -1,149 +1,157 @@
 package main
 
-type S int
-
-const (
-	Main S = S(iota)
-	SelectBranch
-	SelectFaculty
-	SelectDepartment
-	SelectGroup
-)
-
 ///////////////////////////////////////////////////////////
+type ChatContext struct {
+	//получаем информацию о пользователе
+	//используем для записи информации о выборе пользователя, на каком состоянии он находится
+}
+
+func (chc ChatContext) ChatID() string {
+	//получаем VK ID, возвращаем его
+	return id
+}
+func (chc ChatContext) Get(string) string { //получаем информацию о пользователе(либо состояние, либо uuid)
+	//в стрингу(входной параметр) будем писать нужный нам атрибут из БД, возвращаем
+	return uuid
+}
+func (chc ChatContext) Set(string, string) { //записываем информацию в бд
+
+}
+func (chc ChatContext) PayLoad() string { //записываем информацию в бд
+	return msg
+}
+
 type State interface {
-	start()
-	handler()
-	clickUndo()
-	changeSchedule()
-}
-
-var Chains = map[S][]S{
-	Main: {SelectBranch},
-}
-
-type MainClass struct {
-	chains []S
+	Name() string              //получаем название состояния в виде строки, чтобы в дальнейшем куда-то записать(БД)
+	Process(ChatContext) State //нужно взять контекст, посмотреть на каком состоянии сейчас пользователь, метод должен вернуть состояние
 }
 
 //////////////////////////////////////////////////////////
 type StartState struct {
-	schedule Schedule
 }
 
-func (state StartState) start() {
+var _StartState = &StartState{}
+
+func (state StartState) Process(ctx ChatContext) State {
+	return _BranchState
 }
-func (state StartState) clickUndo() {
-
-}
-
-func (state StartState) handler() {
-
-}
-
-func (state StartState) changeSchedule() {
-
+func (state StartState) Name() string {
+	return "StartState"
 }
 
 //////////////////////////////////////////////////////////
 type BranchState struct {
-	schedule Schedule
 }
 
-func (state BranchState) start() {
+var _BranchState = &BranchState{}
 
+func (state BranchState) Process(ctx ChatContext) State {
+	return _FacultyState
 }
 
-func (state BranchState) clickUndo() {
-
-}
-
-func (state BranchState) changeSchedule() {
-
-}
-
-//////////////////////////////////////////////////////////
-type GroupState struct {
-	schedule Schedule
-}
-
-func (state GroupState) start() {
-
-}
-
-func (state GroupState) clickUndo() {
-
-}
-
-func (state GroupState) changeSchedule() {
-
+func (state BranchState) Name() string {
+	return "BranchState"
 }
 
 //////////////////////////////////////////////////////////
 type FacultyState struct {
-	schedule Schedule
 }
 
-func (state FacultyState) start() {
+var _FacultyState = &FacultyState{}
 
+func (state FacultyState) Process(ctx ChatContext) State {
+	return _DepartmentState
 }
 
-func (state FacultyState) clickUndo() {
-
+func (state FacultyState) Name() string {
+	return "FacultyState"
 }
 
-func (state FacultyState) changeSchedule() {
+//////////////////////////////////////////////////////////
+type DepartmentState struct {
+}
 
+var _DepartmentState = &DepartmentState{}
+
+func (state DepartmentState) Process(ctx ChatContext) State {
+	return _GroupState
+}
+func (department DepartmentState) Name() string {
+	return "DepartmentState"
+}
+
+/////////////////////////////////////////////////////////
+type GroupState struct {
+}
+
+var _GroupState = &GroupState{}
+
+func (state GroupState) Process(ctx ChatContext) State {
+	return _FacultyState
+}
+
+func (state GroupState) Name() string {
+	return "GroupState"
+}
+
+//////////////////////////////////////////////////////////
+type WeekState struct {
+}
+
+var _WeekState = &WeekState{}
+
+func (state WeekState) Process(ctx ChatContext) State {
+	return _DayState
+}
+
+func (state WeekState) Name() string {
+	return "WeekState"
 }
 
 ///////////////////////////////////////////////////////////
-type Schedule struct {
-	state State
+
+type NextWeekState struct {
 }
 
-func (schedule *Schedule) changeState(state State) {
+var _NextWeekState = &WeekState{}
+
+func (state NextWeekState) Process(ctx ChatContext) State {
+	return _DayState
 }
+
+func (state NextWeekState) Name() string {
+	return "NextWeekState"
+}
+
+///////////////////////////////////////////////////////////
 
 type DayState struct {
-	schedule Schedule
 }
 
-func (day DayState) start() {
+var _DayState = &DayState{}
 
-}
-func (day DayState) clickUndo() {
-
-}
-func (day DayState) changeSchedule() {
-
+func (state DayState) Process(ctx ChatContext) State {
+	return _DayState
 }
 
-type WeekState struct {
-	schedule Schedule
-}
-
-func (week WeekState) start() {
-
-}
-func (week WeekState) clickUndo() {
-
-}
-func (week WeekState) changeSchedule() {
-
-}
-
-type DepartmentState struct {
-	schedule Schedule
-}
-
-func (department DepartmentState) start() {
-
-}
-func (department DepartmentState) clickUndo() {
-
-}
-func (department DepartmentState) changeSchedule() {
-
+func (state DayState) Name() string {
+	return "DayState"
 }
 
 ///////////////////////////////////////////////////////////
+
+type ErrorState struct {
+}
+
+var _ErrorState = &DayState{}
+
+func (state ErrorState) Process(ctx ChatContext) State {
+	return _DayState
+}
+
+func (state ErrorState) Name() string {
+	return "ErrorState"
+}
+
+///////////////////////////////////////////////////////////
+//var AuthUsersList = make(map[string]State)
