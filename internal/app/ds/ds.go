@@ -1,7 +1,5 @@
 package ds
 
-import "github.com/google/uuid"
-
 type User struct {
 	VkID int
 
@@ -11,8 +9,8 @@ type User struct {
 }
 
 type ScheduleInfo struct {
-	BranchUUID     uuid.UUID
-	FacultyUUID    uuid.UUID
-	DepartmentUUID uuid.UUID
-	GroupUUID      uuid.UUID
+	BranchUUID     string
+	FacultyUUID    string
+	DepartmentUUID string
+	GroupUUID      string
 }
