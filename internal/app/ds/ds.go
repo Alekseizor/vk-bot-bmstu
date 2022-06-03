@@ -2,12 +2,10 @@ package ds
 
 import "github.com/google/uuid"
 
-type State string
-
 type User struct {
 	VkID int
 
-	Memory string
+	State string
 
 	Schedule ScheduleInfo
 }

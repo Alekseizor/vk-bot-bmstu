@@ -21,13 +21,13 @@ func getUserKey(userVkID int) string {
 	return servicePrefix + strconv.Itoa(userVkID)
 }
 
-type Client struct {
+type RedClient struct {
 	cfg    config.RedisConfig
 	client *redis.Client
 }
 
-func New(ctx context.Context) (*Client, error) {
-	client := &Client{}
+func New(ctx context.Context) (*RedClient, error) {
+	client := &RedClient{}
 	cfg := config.FromContext(ctx)
 
 	client.cfg = cfg.Redis
@@ -50,11 +50,11 @@ func New(ctx context.Context) (*Client, error) {
 	return client, nil
 }
 
-func (c *Client) Close() error {
+func (c *RedClient) Close() error {
 	return c.client.Close()
 }
 
-func (c *Client) SetUser(ctx context.Context, user ds.User) error {
+func (c *RedClient) SetUser(ctx context.Context, user ds.User) error {
 	var b bytes.Buffer
 
 	if err := json.NewEncoder(&b).Encode(user); err != nil {
@@ -64,13 +64,12 @@ func (c *Client) SetUser(ctx context.Context, user ds.User) error {
 	return c.client.Set(ctx, getUserKey(user.VkID), b.String(), 0).Err()
 }
 
-func (c *Client) GetUser(ctx context.Context, vkID int) (*ds.User, error) {
+func (c *RedClient) GetUser(ctx context.Context, vkID int) (*ds.User, error) {
 	data, err := c.client.Get(ctx, getUserKey(vkID)).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return nil, nil
 		}
-
 		return nil, err
 	}
 

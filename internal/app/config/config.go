@@ -13,8 +13,16 @@ import (
 // Содержит все конфигурационные данные о сервисе;
 // автоподгружается при изменении исходного файла
 type Config struct {
-	Token string
-	Redis RedisConfig
+	VKToken    string
+	Redis      RedisConfig
+	BITOPToken string
+	BITOP      BitopConfig
+}
+
+type BitopConfig struct {
+	SiteAdress string
+	Protocol   string
+	Path       string
 }
 
 type RedisConfig struct {
@@ -45,7 +53,13 @@ func NewConfig(ctx context.Context) (*Config, error) {
 	if token := os.Getenv("VK_TOKEN"); token == "" {
 		return nil, fmt.Errorf("")
 	} else {
-		cfg.Token = token
+		cfg.VKToken = token
+	}
+
+	if token := os.Getenv("BITOP_TOKEN"); token == "" {
+		return nil, fmt.Errorf("")
+	} else {
+		cfg.BITOPToken = token
 	}
 
 	viper.SetConfigName(configName)
