@@ -70,7 +70,6 @@ func (c *RedClient) GetUser(ctx context.Context, vkID int) (*ds.User, error) {
 		if err == redis.Nil {
 			return nil, nil
 		}
-
 		return nil, err
 	}
 

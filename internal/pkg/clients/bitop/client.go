@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"main/internal/app/config"
@@ -98,7 +97,7 @@ func (c *Client) GetBranch(ctx context.Context, branch string) (*model.ResponseB
 }
 
 // GetFaculty get info about faculty from parent uuid
-func (c *Client) GetFaculty(ctx context.Context, parentUUID uuid.UUID) (*model.ResponseBody, error) {
+func (c *Client) GetFaculty(ctx context.Context, parentUUID string) (*model.ResponseBody, error) {
 	cfg := config.FromContext(ctx).BITOP
 
 	url := url.URL{
@@ -108,7 +107,7 @@ func (c *Client) GetFaculty(ctx context.Context, parentUUID uuid.UUID) (*model.R
 	}
 
 	reqBody, _ := json.Marshal(model.RequestBody{
-		parentUUID.String(),
+		parentUUID,
 		"",
 		"faculty",
 	})
@@ -151,7 +150,7 @@ func (c *Client) GetFaculty(ctx context.Context, parentUUID uuid.UUID) (*model.R
 }
 
 // GetDepartment get info about department from from parent uuid
-func (c *Client) GetDepartment(ctx context.Context, parentUUID uuid.UUID) (*model.ResponseBody, error) {
+func (c *Client) GetDepartment(ctx context.Context, parentUUID string) (*model.ResponseBody, error) {
 	cfg := config.FromContext(ctx).BITOP
 
 	url := url.URL{
@@ -161,7 +160,7 @@ func (c *Client) GetDepartment(ctx context.Context, parentUUID uuid.UUID) (*mode
 	}
 
 	reqBody, _ := json.Marshal(model.RequestBody{
-		parentUUID.String(),
+		parentUUID,
 		"",
 		"department",
 	})
@@ -204,7 +203,7 @@ func (c *Client) GetDepartment(ctx context.Context, parentUUID uuid.UUID) (*mode
 }
 
 // GetGroup get info about group, from parent uuid
-func (c *Client) GetGroup(ctx context.Context, parentUUID uuid.UUID) (*model.ResponseBody, error) {
+func (c *Client) GetGroup(ctx context.Context, parentUUID string) (*model.ResponseBody, error) {
 	cfg := config.FromContext(ctx).BITOP
 
 	url := url.URL{
@@ -214,7 +213,7 @@ func (c *Client) GetGroup(ctx context.Context, parentUUID uuid.UUID) (*model.Res
 	}
 
 	reqBody, _ := json.Marshal(model.RequestBody{
-		parentUUID.String(),
+		parentUUID,
 		"",
 		"group",
 	})
