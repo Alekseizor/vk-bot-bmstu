@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"main/internal/app/model"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type Client struct {
@@ -30,9 +32,11 @@ func New(ctx context.Context) *Client {
 	}
 }
 
+// GetBranch get info about branch from request
 func (c *Client) GetBranch(ctx context.Context, branch string) (*model.ResponseBody, error) {
 	cfg := config.FromContext(ctx).BITOP
 
+	//creating url
 	url := url.URL{
 		Scheme: cfg.Protocol,
 		Host:   cfg.SiteAdress,
@@ -41,36 +45,49 @@ func (c *Client) GetBranch(ctx context.Context, branch string) (*model.ResponseB
 
 	log.Info("url created", url.String())
 
+	//create request body
 	reqBody, _ := json.Marshal(model.RequestBody{
 		"",
 		branch,
 		"branch",
 	})
 
+	//create request
 	reqToApi, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(reqBody))
 	if err != nil {
 		log.WithError(err).Error("cant create request")
 		return nil, err
 	}
 
+	//create request headers
 	reqToApi.Header = http.Header{
 		"x-bb-token": {c.body.Token},
 	}
 
+	//do request
 	rawResp, err := c.client.Do(reqToApi)
 	if err != nil {
 		log.WithError(err).Error("cant do request")
 		return nil, err
 	}
 
+	var resp model.ResponseBody
+
+	//status code check
+	if rawResp.StatusCode != 200 {
+		errLog := "status code is" + strconv.Itoa(rawResp.StatusCode)
+		log.Error(errLog)
+		return nil, errors.New(errLog)
+	}
+
+	//read response body
 	body, err := io.ReadAll(rawResp.Body)
 	if err != nil {
 		log.WithError(err).Error("cant read response")
 		return nil, err
 	}
 
-	var resp model.ResponseBody
-
+	//unmarshall response body
 	err = json.Unmarshal(body, &resp)
 	if err != nil {
 		log.WithError(err).Error("cant unmarshal response")
@@ -80,6 +97,7 @@ func (c *Client) GetBranch(ctx context.Context, branch string) (*model.ResponseB
 	return &resp, err
 }
 
+// GetFaculty get info about faculty from parent uuid
 func (c *Client) GetFaculty(ctx context.Context, parentUUID uuid.UUID) (*model.ResponseBody, error) {
 	cfg := config.FromContext(ctx).BITOP
 
@@ -110,6 +128,12 @@ func (c *Client) GetFaculty(ctx context.Context, parentUUID uuid.UUID) (*model.R
 		return nil, err
 	}
 
+	if rawResp.StatusCode != 200 {
+		errLog := "status code is" + strconv.Itoa(rawResp.StatusCode)
+		log.Error(errLog)
+		return nil, errors.New(errLog)
+	}
+
 	body, err := io.ReadAll(rawResp.Body)
 	if err != nil {
 		log.WithError(err).Error("cant read response")
@@ -126,6 +150,7 @@ func (c *Client) GetFaculty(ctx context.Context, parentUUID uuid.UUID) (*model.R
 	return &resp, err
 }
 
+// GetDepartment get info about department from from parent uuid
 func (c *Client) GetDepartment(ctx context.Context, parentUUID uuid.UUID) (*model.ResponseBody, error) {
 	cfg := config.FromContext(ctx).BITOP
 
@@ -156,6 +181,12 @@ func (c *Client) GetDepartment(ctx context.Context, parentUUID uuid.UUID) (*mode
 		return nil, err
 	}
 
+	if rawResp.StatusCode != 200 {
+		errLog := "status code is" + strconv.Itoa(rawResp.StatusCode)
+		log.Error(errLog)
+		return nil, errors.New(errLog)
+	}
+
 	body, err := io.ReadAll(rawResp.Body)
 	if err != nil {
 		log.WithError(err).Error("cant read response")
@@ -172,6 +203,7 @@ func (c *Client) GetDepartment(ctx context.Context, parentUUID uuid.UUID) (*mode
 	return &resp, err
 }
 
+// GetGroup get info about group, from parent uuid
 func (c *Client) GetGroup(ctx context.Context, parentUUID uuid.UUID) (*model.ResponseBody, error) {
 	cfg := config.FromContext(ctx).BITOP
 
@@ -200,6 +232,12 @@ func (c *Client) GetGroup(ctx context.Context, parentUUID uuid.UUID) (*model.Res
 	if err != nil {
 		log.WithError(err).Error("cant do request")
 		return nil, err
+	}
+
+	if rawResp.StatusCode != 200 {
+		errLog := "status code is" + strconv.Itoa(rawResp.StatusCode)
+		log.Error(errLog)
+		return nil, errors.New(errLog)
 	}
 
 	body, err := io.ReadAll(rawResp.Body)
