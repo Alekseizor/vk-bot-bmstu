@@ -3,14 +3,10 @@ package ds
 type User struct {
 	VkID int
 
-	State string
-
-	Schedule ScheduleInfo
-}
-
-type ScheduleInfo struct {
+	State          string
 	BranchUUID     string
 	FacultyUUID    string
 	DepartmentUUID string
 	GroupUUID      string
+	IsNumerator    string
 }

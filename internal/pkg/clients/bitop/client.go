@@ -254,3 +254,106 @@ func (c *Client) GetGroup(ctx context.Context, parentUUID string) (*model.Respon
 
 	return &resp, err
 }
+
+// GetGroup get info about group, from parent uuid
+func (c *Client) GetGroup(ctx context.Context, parentUUID string) (*model.ResponseBody, error) {
+	cfg := config.FromContext(ctx).BITOP
+
+	url := url.URL{
+		Scheme: cfg.Protocol,
+		Host:   cfg.SiteAdress,
+		Path:   cfg.Path,
+	}
+
+	reqBody, _ := json.Marshal(model.RequestBody{
+		parentUUID,
+		"",
+		"group",
+	})
+
+	reqToApi, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.WithError(err).Error("cant create request")
+	}
+
+	reqToApi.Header = http.Header{
+		"x-bb-token": {c.body.Token},
+	}
+
+	rawResp, err := c.client.Do(reqToApi)
+	if err != nil {
+		log.WithError(err).Error("cant do request")
+		return nil, err
+	}
+
+	if rawResp.StatusCode != 200 {
+		errLog := "status code is" + strconv.Itoa(rawResp.StatusCode)
+		log.Error(errLog)
+		return nil, errors.New(errLog)
+	}
+
+	body, err := io.ReadAll(rawResp.Body)
+	if err != nil {
+		log.WithError(err).Error("cant read response")
+		return nil, err
+	}
+	var resp model.ResponseBody
+
+	err = json.Unmarshal(body, &resp)
+	if err != nil {
+		log.WithError(err).Error("cant unmarshal response")
+		return nil, err
+	}
+
+	return &resp, err
+}
+func (c *Client) GetSchedule(ctx context.Context, parentUUID string, IsNumerator bool, message string) (*model.ResponseBodySchedule, error){
+	cfg := config.FromContext(ctx).BITOP
+
+	url := url.URL{
+		Scheme: cfg.Protocol,
+		Host:   cfg.SiteAdress,
+		Path:   cfg.Path,
+	}
+	reqBody, _ := json.Marshal(model.RequestBodySchedule{
+		parentUUID,
+	})
+
+	reqToApi, err := http.NewRequest("GET", url.String(), bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.WithError(err).Error("cant create request")
+	}
+
+	reqToApi.Header = http.Header{
+		"x-bb-token": {c.body.Token},
+	}
+	rawResp, err := c.client.Do(reqToApi)
+	if err != nil {
+		log.WithError(err).Error("cant do request")
+		return nil, err
+	}
+
+	if rawResp.StatusCode != 200 {
+		errLog := "status code is" + strconv.Itoa(rawResp.StatusCode)
+		log.Error(errLog)
+		return nil, errors.New(errLog)
+	}
+
+	body, err := io.ReadAll(rawResp.Body)
+	if err != nil {
+		log.WithError(err).Error("cant read response")
+		return nil, err
+	}
+	var resp model.ResponseBody
+
+	err = json.Unmarshal(body, &resp)
+	if err != nil {
+		log.WithError(err).Error("cant unmarshal response")
+		return nil, err
+	}
+
+	return &resp, err
+
+
+}
+GetSchedule(ctc.Ctx, ctc.User.IsNumerator, messageText)
