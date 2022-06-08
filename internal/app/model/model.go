@@ -6,6 +6,10 @@ type RequestBody struct {
 	Type       string `json:"type"`
 }
 
+type RequestBodySchedule struct {
+	ParentUuid string `json:"parent_uuid"`
+}
+
 type ResponseBody struct {
 	Items []struct {
 		Additional string `json:"additional"`
@@ -14,6 +18,21 @@ type ResponseBody struct {
 		Uuid       string `json:"uuid"`
 	} `json:"items"`
 	Total int `json:"total"`
+}
+
+type ResponseBodySchedule struct {
+	Lessons []struct {
+		Name     string `json:"name"`
+		Cabinet  string `json:"cabinet"`
+		Type     string `json:"type"`
+		Teachers []struct {
+			Name string `json:"name"`
+		} `json:"teachers"`
+		StartAt     string `json:"start_at"`
+		EndAt       string `json:"end_at"`
+		Day         string `json:"day"`
+		IsNumerator string `json:"is_numerator"`
+	} `json:"lessons"`
 }
 
 type BitopBody struct {
