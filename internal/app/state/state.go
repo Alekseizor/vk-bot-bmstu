@@ -90,6 +90,7 @@ func (state StartState) Process(ctc ChatContext, messageText string) State {
 		k.AddRow()
 		k.AddTextButton("Узнать расписание", "", "primary")
 		b.Keyboard(k)
+		b.RandomID(0)
 		_, err := ctc.Vk.MessagesSend(b.Params)
 		if err != nil {
 			log.Fatal(err)
@@ -118,6 +119,7 @@ func (state BranchState) Process(ctc ChatContext, messageText string) State {
 		k.AddRow()
 		k.AddTextButton("Узнать расписание", "", "primary")
 		b.Keyboard(k)
+		b.RandomID(0)
 		_, err := ctc.Vk.MessagesSend(b.Params)
 		if err != nil {
 			log.Fatal(err)
