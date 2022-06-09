@@ -8,5 +8,5 @@ type User struct {
 	FacultyUUID    string
 	DepartmentUUID string
 	GroupUUID      string
-	IsNumerator    string
+	IsNumerator    bool
 }

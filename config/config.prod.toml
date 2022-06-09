@@ -2,7 +2,8 @@
 [BITOP]
 SiteAdress = "api.bistg.bmstu.ru"
 Protocol = "https"
-Path = "/schedule/{uuid}"
+PathPath = "/schedule/"
+PathSearch = "/search/unit"
 
 # НАСТРОЙКИ РЕДИСКИ
 [Redis]

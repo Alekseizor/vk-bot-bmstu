@@ -22,7 +22,8 @@ type Config struct {
 type BitopConfig struct {
 	SiteAdress string
 	Protocol   string
-	Path       string
+	PathPath   string
+	PathSearch string
 }
 
 type RedisConfig struct {

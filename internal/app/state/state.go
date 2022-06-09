@@ -9,6 +9,7 @@ import (
 	"main/internal/app/ds"
 	"main/internal/app/redis"
 	"main/internal/pkg/clients/bitop"
+	"strconv"
 )
 
 ///////////////////////////////////////////////////////////
@@ -49,7 +50,7 @@ func (chc ChatContext) Get(VkID int, Field string) string { //получаем �
 		return chc.User.GroupUUID
 	}
 	if Field == "IsNumerator" {
-		return chc.User.IsNumerator
+		return strconv.FormatBool(chc.User.IsNumerator)
 	}
 
 	return "not found"
@@ -176,15 +177,7 @@ func (state GroupState) Process(ctc ChatContext, messageText string) State {
 		}
 		return RefGroupState
 	}
-	if resp == nil {
-		b := params.NewMessagesSendBuilder()
-		b.Message("Введите нужную группу повторно, не удалось найти")
-		_, err := ctc.Vk.MessagesSend(b.Params)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return RefGroupState
-	} else {
+	if resp.Total == 1 {
 		ctc.User.GroupUUID = resp.Items[0].Uuid
 		b := params.NewMessagesSendBuilder()
 		b.Message("Выберите интересующую Вас неделю")
@@ -200,6 +193,13 @@ func (state GroupState) Process(ctc ChatContext, messageText string) State {
 		}
 		return RefWeekState
 	}
+	b := params.NewMessagesSendBuilder()
+	b.Message("Введите нужную группу повторно, не удалось найти")
+	_, err := ctc.Vk.MessagesSend(b.Params)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return RefGroupState
 }
 
 func (state GroupState) Name() string {
@@ -213,8 +213,8 @@ type WeekState struct {
 var RefWeekState = &WeekState{}
 
 func (state WeekState) Process(ctc ChatContext, messageText string) State {
-	if (messageText == "Числитель") || (ctc.User.IsNumerator == "true") {
-		ctc.User.IsNumerator = "true"
+	if messageText == "Числитель" {
+		ctc.User.IsNumerator = true
 		b := params.NewMessagesSendBuilder()
 		b.Message("Выберите нужный день недели")
 		k := &object.MessagesKeyboard{}
@@ -236,8 +236,52 @@ func (state WeekState) Process(ctc ChatContext, messageText string) State {
 			log.Fatal(err)
 		}
 		return RefDayState
-	} else if (messageText == "Знаменатель") || (ctc.User.IsNumerator == "false") {
-		ctc.User.IsNumerator = "false"
+	} else if messageText == "Знаменатель" {
+		ctc.User.IsNumerator = false
+		b := params.NewMessagesSendBuilder()
+		b.Message("Выберите нужный день недели")
+		k := &object.MessagesKeyboard{}
+		k.AddRow()
+		k.AddTextButton("Понедельник", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Вторник", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Среда", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Четверг", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Пятница", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Суббота", "", "primary")
+		b.Keyboard(k)
+		_, err := ctc.Vk.MessagesSend(b.Params)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return RefDayState
+	} else if ctc.User.IsNumerator == false {
+		b := params.NewMessagesSendBuilder()
+		b.Message("Выберите нужный день недели")
+		k := &object.MessagesKeyboard{}
+		k.AddRow()
+		k.AddTextButton("Понедельник", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Вторник", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Среда", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Четверг", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Пятница", "", "primary")
+		k.AddRow()
+		k.AddTextButton("Суббота", "", "primary")
+		b.Keyboard(k)
+		_, err := ctc.Vk.MessagesSend(b.Params)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return RefDayState
+	} else if ctc.User.IsNumerator == true {
 		b := params.NewMessagesSendBuilder()
 		b.Message("Выберите нужный день недели")
 		k := &object.MessagesKeyboard{}
@@ -276,7 +320,7 @@ type NextWeekState struct {
 var RefNextWeekState = &WeekState{}
 
 func (state NextWeekState) Process(ctc ChatContext, messageText string) State {
-
+	return NextWeekState{}
 }
 
 func (state NextWeekState) Name() string {
@@ -293,7 +337,7 @@ var RefDayState = &DayState{}
 func (state DayState) Process(ctc ChatContext, messageText string) State {
 	var v string
 	if (messageText == "Понедельник") || (messageText == "Вторник") || (messageText == "Среда") || (messageText == "Четверг") || (messageText == "Пятница") || (messageText == "Суббота") {
-		Schedule, err := ctc.BitopClient.GetSchedule(ctc.Ctx, ctc.User.IsNumerator, messageText)
+		Schedule, err := ctc.BitopClient.GetSchedule(ctc.Ctx, ctc.User.GroupUUID, ctc.User.IsNumerator, messageText)
 		if err != nil {
 			log.WithError(err).Error("failed to get schedule")
 		}
@@ -334,7 +378,6 @@ func (state DayState) Process(ctc ChatContext, messageText string) State {
 		b.Message(v)
 		return RefDayState
 	} else if messageText == "Сброс" {
-		ctc.User.IsNumerator = ""
 		b := params.NewMessagesSendBuilder()
 		k := &object.MessagesKeyboard{}
 		k.AddRow()
@@ -368,7 +411,6 @@ func (state DayState) Process(ctc ChatContext, messageText string) State {
 		}
 		return RefDayState
 	} else if messageText == "Вернуться к выбору недели" {
-		ctc.User.IsNumerator = ""
 		b := params.NewMessagesSendBuilder()
 		b.Message("Выберите интересующую Вас неделю")
 		k := &object.MessagesKeyboard{}

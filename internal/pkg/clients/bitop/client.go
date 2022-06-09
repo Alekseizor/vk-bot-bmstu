@@ -39,7 +39,7 @@ func (c *Client) GetBranch(ctx context.Context, branch string) (*model.ResponseB
 	url := url.URL{
 		Scheme: cfg.Protocol,
 		Host:   cfg.SiteAdress,
-		Path:   cfg.Path,
+		Path:   cfg.PathSearch,
 	}
 
 	log.Info("url created", url.String())
@@ -103,7 +103,7 @@ func (c *Client) GetFaculty(ctx context.Context, parentUUID string) (*model.Resp
 	url := url.URL{
 		Scheme: cfg.Protocol,
 		Host:   cfg.SiteAdress,
-		Path:   cfg.Path,
+		Path:   cfg.PathSearch,
 	}
 
 	reqBody, _ := json.Marshal(model.RequestBody{
@@ -156,7 +156,7 @@ func (c *Client) GetDepartment(ctx context.Context, parentUUID string) (*model.R
 	url := url.URL{
 		Scheme: cfg.Protocol,
 		Host:   cfg.SiteAdress,
-		Path:   cfg.Path,
+		Path:   cfg.PathSearch,
 	}
 
 	reqBody, _ := json.Marshal(model.RequestBody{
@@ -203,18 +203,18 @@ func (c *Client) GetDepartment(ctx context.Context, parentUUID string) (*model.R
 }
 
 // GetGroup get info about group, from parent uuid
-func (c *Client) GetGroup(ctx context.Context, parentUUID string) (*model.ResponseBody, error) {
+func (c *Client) GetGroup(ctx context.Context, groupName string) (*model.ResponseBody, error) {
 	cfg := config.FromContext(ctx).BITOP
 
 	url := url.URL{
 		Scheme: cfg.Protocol,
 		Host:   cfg.SiteAdress,
-		Path:   cfg.Path,
+		Path:   cfg.PathSearch,
 	}
 
 	reqBody, _ := json.Marshal(model.RequestBody{
-		parentUUID,
 		"",
+		groupName,
 		"group",
 	})
 
@@ -255,23 +255,27 @@ func (c *Client) GetGroup(ctx context.Context, parentUUID string) (*model.Respon
 	return &resp, err
 }
 
-// GetGroup get info about group, from parent uuid
-func (c *Client) GetGroup(ctx context.Context, parentUUID string) (*model.ResponseBody, error) {
+func (c *Client) GetSchedule(ctx context.Context, parentUUID string, IsNumerator bool, message string) (*model.ResponseBodySchedule, error) {
+	weekdays := map[string]int{
+		"Понедельник": 1,
+		"Вторник":     2,
+		"Среда":       3,
+		"Четверг":     4,
+		"Пятница":     5,
+		"Суббота":     6,
+	}
+
 	cfg := config.FromContext(ctx).BITOP
 
 	url := url.URL{
 		Scheme: cfg.Protocol,
 		Host:   cfg.SiteAdress,
-		Path:   cfg.Path,
+		Path:   cfg.PathPath,
 	}
 
-	reqBody, _ := json.Marshal(model.RequestBody{
-		parentUUID,
-		"",
-		"group",
-	})
+	urlS := url.String() + parentUUID
 
-	reqToApi, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(reqBody))
+	reqToApi, err := http.NewRequest("GET", urlS, nil)
 	if err != nil {
 		log.WithError(err).Error("cant create request")
 	}
@@ -297,7 +301,7 @@ func (c *Client) GetGroup(ctx context.Context, parentUUID string) (*model.Respon
 		log.WithError(err).Error("cant read response")
 		return nil, err
 	}
-	var resp model.ResponseBody
+	var resp model.ResponseBodySchedule
 
 	err = json.Unmarshal(body, &resp)
 	if err != nil {
@@ -305,55 +309,13 @@ func (c *Client) GetGroup(ctx context.Context, parentUUID string) (*model.Respon
 		return nil, err
 	}
 
-	return &resp, err
+	var result model.ResponseBodySchedule
+
+	for _, item := range resp.Lessons {
+		if item.Day == weekdays[message] && item.IsNumerator == IsNumerator {
+			result.Lessons = append(result.Lessons, item)
+		}
+	}
+
+	return &result, err
 }
-func (c *Client) GetSchedule(ctx context.Context, parentUUID string, IsNumerator bool, message string) (*model.ResponseBodySchedule, error){
-	cfg := config.FromContext(ctx).BITOP
-
-	url := url.URL{
-		Scheme: cfg.Protocol,
-		Host:   cfg.SiteAdress,
-		Path:   cfg.Path,
-	}
-	reqBody, _ := json.Marshal(model.RequestBodySchedule{
-		parentUUID,
-	})
-
-	reqToApi, err := http.NewRequest("GET", url.String(), bytes.NewBuffer(reqBody))
-	if err != nil {
-		log.WithError(err).Error("cant create request")
-	}
-
-	reqToApi.Header = http.Header{
-		"x-bb-token": {c.body.Token},
-	}
-	rawResp, err := c.client.Do(reqToApi)
-	if err != nil {
-		log.WithError(err).Error("cant do request")
-		return nil, err
-	}
-
-	if rawResp.StatusCode != 200 {
-		errLog := "status code is" + strconv.Itoa(rawResp.StatusCode)
-		log.Error(errLog)
-		return nil, errors.New(errLog)
-	}
-
-	body, err := io.ReadAll(rawResp.Body)
-	if err != nil {
-		log.WithError(err).Error("cant read response")
-		return nil, err
-	}
-	var resp model.ResponseBody
-
-	err = json.Unmarshal(body, &resp)
-	if err != nil {
-		log.WithError(err).Error("cant unmarshal response")
-		return nil, err
-	}
-
-	return &resp, err
-
-
-}
-GetSchedule(ctc.Ctx, ctc.User.IsNumerator, messageText)

@@ -30,8 +30,8 @@ type ResponseBodySchedule struct {
 		} `json:"teachers"`
 		StartAt     string `json:"start_at"`
 		EndAt       string `json:"end_at"`
-		Day         string `json:"day"`
-		IsNumerator string `json:"is_numerator"`
+		Day         int    `json:"day"`
+		IsNumerator bool   `json:"is_numerator"`
 	} `json:"lessons"`
 }
 
