@@ -39,3 +39,22 @@ type BitopBody struct {
 	Token   string
 	Request RequestBody
 }
+
+type Lesson struct {
+	Name     string
+	Cabinet  string
+	Type     string
+	Teachers []struct {
+		Name string
+	}
+	StartAt     string
+	EndAt       string
+	Day         int
+	IsNumerator bool
+}
+type Teacher struct {
+	Name string
+}
+type Teachers []struct {
+	Name string
+}

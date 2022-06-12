@@ -310,12 +310,15 @@ func (c *Client) GetSchedule(ctx context.Context, parentUUID string, IsNumerator
 	}
 
 	var result model.ResponseBodySchedule
-
+	k := 0
 	for _, item := range resp.Lessons {
 		if item.Day == weekdays[message] && item.IsNumerator == IsNumerator {
+			k++
 			result.Lessons = append(result.Lessons, item)
 		}
 	}
-
+	if k == 0 {
+		return nil, nil
+	}
 	return &result, err
 }
